@@ -36,3 +36,5 @@ CREATE TABLE transactions (
     FOREIGN KEY (account_id) REFERENCES accounts(id),
     FOREIGN KEY (beneficiary_account_id) REFERENCES accounts(id)
 );
+
+
