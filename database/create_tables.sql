@@ -1,3 +1,4 @@
+-- Active: 1733930101794@@127.0.0.1@3306@bank
 -- Create the Bank database
 CREATE DATABASE IF NOT EXISTS Bank;
 USE Bank;
