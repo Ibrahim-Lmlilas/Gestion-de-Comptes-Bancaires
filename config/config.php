@@ -14,13 +14,13 @@ class Database
         PDO::ATTR_EMULATE_PREPARES => false
     ];
 
-    public function construct($dbname, $username = 'root', $password = '20JvAt02', $host = null)
+    public function __construct($dbname, $username = 'root', $password = '', $host = null)
     {
         $this->dbname = $dbname;
         $this->username = $username;
         $this->password = $password;
         $this->host = $host ?? 'localhost';
-        $this->connect();
+        $this->connect(); // Connect immediately upon construction
     }
 
     public function connect()
@@ -34,5 +34,15 @@ class Database
         } catch (PDOException $e) {
             throw new Exception("Connection error: " . $e->getMessage());
         }
+    }
+
+    public function getConnection()
+    {
+        return $this->conn;
+    }
+
+    public function __destruct()
+    {
+        $this->conn = null; // Close connection when object is destroyed
     }
 }
