@@ -94,10 +94,17 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-orange-500 via-purple-600 to-purple-800">
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-button" class="fixed top-4 left-4 z-[9999] p-2 rounded-lg bg-white/10 backdrop-blur-lg md:hidden">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
     <!-- Sidebar -->
-    <div class="fixed left-0 top-0 w-64 h-full bg-white/10 backdrop-blur-lg">
+    <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white/10 backdrop-blur-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-[9999]">
         <div class="flex items-center justify-center h-20 border-b border-white/10">
-            <h1 class="text-2xl font-bold text-white floating">Bank Admin</h1>
+            <h1 class="text-2xl font-bold text-white">Bank Admin</h1>
         </div>
         <nav class="mt-6">
             <div class="px-6 py-4">
@@ -119,16 +126,16 @@
     </div>
 
     <!-- Main Content -->
-    <div class="ml-64 p-8">
+    <div class="md:ml-64 p-4 md:p-8">
         <!-- Header -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8">
-            <div class="flex justify-between items-center">
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 md:p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                 <div>
-                    <h2 class="text-3xl font-bold text-white pulse">Welcome Back</h2>
-                    <p class="text-orange-200">Your dashboard is looking great today</p>
+                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">Welcome Back, Admin!</h2>
+                    <p class="text-white/80 text-lg">We're glad to see you again</p>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105">
+                    <button class="bg-orange-500 text-white px-4 md:px-6 py-2 rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105">
                         New Transaction
                     </button>
                     <div class="relative">
@@ -141,7 +148,7 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
             <!-- Card 1 -->
             <div style="animation-delay: 0.1s" class="card bg-white/10 backdrop-blur-md rounded-xl p-6">
                 <div class="flex items-center justify-between">
@@ -275,15 +282,46 @@
     </div>
 
     <script>
-        // Initialize animations when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            // Animate cards sequentially
+            // Mobile menu functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const sidebar = document.getElementById('sidebar');
+            const menuIcon = document.getElementById('menu-icon');
+            
+            mobileMenuButton.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+                // Change menu icon to X when open
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    menuIcon.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+                } else {
+                    menuIcon.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+                }
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 768) { // Only on mobile
+                    if (!sidebar.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                        sidebar.classList.add('-translate-x-full');
+                        menuIcon.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+                    }
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+
             const cards = document.querySelectorAll('.card');
             cards.forEach((card, index) => {
                 card.style.animationDelay = `${index * 0.1}s`;
             });
 
-            // Animate activity items sequentially
             const activities = document.querySelectorAll('.activity-item');
             activities.forEach((activity, index) => {
                 activity.style.animationDelay = `${(index + 5) * 0.1}s`;
