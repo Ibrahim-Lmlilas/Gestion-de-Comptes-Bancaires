@@ -7,6 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
+        :root {
+            --primary-orange: #FF7043;
+            --primary-purple: #9C27B0;
+            --light-purple: #BA68C8;
+        }
         .forms-wrapper {
             position: relative;
             min-height: 480px;
@@ -33,8 +38,8 @@
         .input-field {
             width: 100%;
             padding: 1rem 1.2rem;
-            background: rgba(67, 56, 202, 0.1);
-            border: 2px solid rgba(99, 102, 241, 0.2);
+            background: rgba(156, 39, 176, 0.1);
+            border: 2px solid rgba(186, 104, 200, 0.2);
             border-radius: 12px;
             color: white;
             font-size: 1rem;
@@ -42,9 +47,9 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .input-field:focus {
-            background: rgba(67, 56, 202, 0.2);
-            border-color: #fb923c;
-            box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.1), 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: rgba(156, 39, 176, 0.2);
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 4px rgba(255, 112, 67, 0.1), 0 4px 6px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
         }
         .input-label {
@@ -52,17 +57,17 @@
             left: 1rem;
             top: 1rem;
             padding: 0 0.5rem;
-            color: #a5b4fc;
+            color: #E1BEE7;
             font-size: 1rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
-            background: linear-gradient(180deg, transparent 50%, rgba(67, 56, 202, 0.1) 50%);
+            background: linear-gradient(180deg, transparent 50%, rgba(156, 39, 176, 0.1) 50%);
         }
         .input-field:focus + .input-label,
         .input-field:not(:placeholder-shown) + .input-label {
-            transform: translateY(-1.4rem) scale(0.85);
-            color: #fb923c;
-            background: linear-gradient(180deg, #312e81 50%, rgba(67, 56, 202, 0.1) 50%);
+            transform: translateY(-2.4rem) scale(0.85);
+            color: var(--primary-orange);
+            background: linear-gradient(180deg, #4A148C 50%, rgba(156, 39, 176, 0.1) 50%);
         }
         .input-field::placeholder {
             color: transparent;
@@ -72,6 +77,7 @@
             overflow: hidden;
             transition: all 0.3s ease;
             z-index: 1;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, #F4511E 100%);
         }
         .btn-primary:before {
             content: '';
@@ -91,7 +97,7 @@
         }
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(251, 146, 60, 0.4);
+            box-shadow: 0 6px 15px rgba(255, 112, 67, 0.4);
         }
         .btn-primary:active {
             transform: translateY(0);
@@ -99,6 +105,7 @@
         .btn-secondary {
             position: relative;
             transition: all 0.3s ease;
+            color: var(--primary-orange);
         }
         .btn-secondary:after {
             content: '';
@@ -107,7 +114,7 @@
             left: 50%;
             width: 0;
             height: 2px;
-            background: #fb923c;
+            background: var(--primary-orange);
             transition: all 0.3s ease;
             transform: translateX(-50%);
         }
@@ -116,6 +123,7 @@
         }
         .bank-icon {
             transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: linear-gradient(135deg, var(--primary-orange) 0%, #F4511E 100%);
         }
         .bank-icon:hover {
             transform: scale(1.1) rotate(5deg);
@@ -131,9 +139,8 @@
     </style>
 </head>
 
-
-<body class="bg-gradient-to-br from-indigo-600 to-indigo-800 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-indigo-900/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-4xl flex flex-col md:flex-row gap-8">
+<body class="bg-gradient-to-br from-purple-700 to-purple-900 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-purple-900/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-4xl flex flex-col md:flex-row gap-8">
         <!-- Left Side - Bank Icon and Welcome Message -->
         <div class="flex-1 flex flex-col items-center justify-center">
             <div class="bank-icon bg-orange-400 rounded-full p-8 w-32 h-32 mx-auto mb-8 shadow-lg floating">
@@ -151,78 +158,27 @@
         <div class="flex-1">
             <div class="forms-wrapper">
                 <!-- Login Form -->
-                <div id="loginForm" class="form-container">
-                    <h2 class="text-2xl font-semibold text-white mb-6">Sign In</h2>
+                <div id="loginForm" class="form-container pt-20">
+                    <h2 class="text-2xl font-semibold text-white mb-6 ">Sign In</h2>
                     <form action="/login" method="POST" class="space-y-6">
                         <div class="input-group">
                             <input type="email" id="login-email" name="email" 
-                                   class="input-field"
-                                   placeholder="Email">
+                                class="input-field" placeholder=" ">
                             <label for="login-email" class="input-label">
                                 Email Address
                             </label>
                         </div>
                         <div class="input-group">
                             <input type="password" id="login-password" name="password" 
-                                   class="input-field"
-                                   placeholder="Password">
+                                class="input-field" placeholder=" ">
                             <label for="login-password" class="input-label">
                                 Password
                             </label>
                         </div>
                         <button type="submit" 
-                                class="btn-primary w-full bg-orange-400 text-white py-3 rounded-lg font-semibold">
+                            class="btn-primary w-full py-3 px-6 rounded-lg text-white font-semibold">
                             Sign In
                         </button>
-                        <div class="text-center">
-                            <p class="text-indigo-200">Don't have an account?</p>
-                            <button type="button" onclick="toggleForms()" 
-                                    class="btn-secondary text-orange-400 mt-2 font-medium px-4 py-2 rounded-lg">
-                                Create an account
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Register Form -->
-                <div id="registerForm" class="form-container hidden">
-                    <h2 class="text-2xl font-semibold text-white mb-6">Create an account</h2>
-                    <form action="/register" method="POST" class="space-y-6">
-                        <div class="input-group">
-                            <input type="email" id="register-email" name="email" 
-                                   class="input-field"
-                                   placeholder="Email">
-                            <label for="register-email" class="input-label">
-                                Email Address
-                            </label>
-                        </div>
-                        <div class="input-group">
-                            <input type="password" id="register-password" name="password" 
-                                   class="input-field"
-                                   placeholder="Password">
-                            <label for="register-password" class="input-label">
-                                Password
-                            </label>
-                        </div>
-                        <div class="input-group">
-                            <input type="password" id="confirm-password" name="confirm_password" 
-                                   class="input-field"
-                                   placeholder="Confirm Password">
-                            <label for="confirm-password" class="input-label">
-                                Confirm Password
-                            </label>
-                        </div>
-                        <button type="submit" 
-                                class="btn-primary w-full bg-orange-400 text-white py-3 rounded-lg font-semibold">
-                            Sign Up
-                        </button>
-                        <div class="text-center">
-                            <p class="text-indigo-200">Already have an account?</p>
-                            <button type="button" onclick="toggleForms()" 
-                                    class="btn-secondary text-orange-400 mt-2 font-medium px-4 py-2 rounded-lg">
-                                Sign in instead
-                            </button>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -230,78 +186,6 @@
     </div>
 
     <script>
-        let isAnimating = false;
-
-        function toggleForms() {
-            if (isAnimating) return;
-            
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            
-            isAnimating = true;
-            
-            // Using GSAP for smoother animations
-            if (loginForm.classList.contains('hidden')) {
-                // Show login form
-                gsap.to(registerForm, {
-                    opacity: 0,
-                    rotationY: 180,
-                    z: 100,
-                    duration: 0.3,
-                    ease: "back.inOut(1.7)",
-                    onComplete: () => {
-                        registerForm.classList.add('hidden');
-                        loginForm.classList.remove('hidden');
-                        gsap.fromTo(loginForm, 
-                            { opacity: 0, rotationY: -180, z: 100 },
-                            { 
-                                opacity: 1, 
-                                rotationY: 0,
-                                z: 0,
-                                duration: 0.3,
-                                ease: "back.out(1.7)",
-                                onComplete: () => {
-                                    isAnimating = false;
-                                }
-                            }
-                        );
-                    }
-                });
-            } else {
-                // Show register form
-                gsap.to(loginForm, {
-                    opacity: 0,
-                    rotationY: -180,
-                    z: 100,
-                    duration: 0.3,
-                    ease: "back.inOut(1.7)",
-                    onComplete: () => {
-                        loginForm.classList.add('hidden');
-                        registerForm.classList.remove('hidden');
-                        gsap.fromTo(registerForm, 
-                            { opacity: 0, rotationY: 180, z: 100 },
-                            { 
-                                opacity: 1, 
-                                rotationY: 0,
-                                z: 0,
-                                duration: 0.3,
-                                ease: "back.out(1.7)",
-                                onComplete: () => {
-                                    isAnimating = false;
-                                }
-                            }
-                        );
-                    }
-                });
-            }
-            
-            // Reset form fields with delay
-            setTimeout(() => {
-                loginForm.querySelector('form').reset();
-                registerForm.querySelector('form').reset();
-            }, 300);
-        }
-
         // Add floating animation to bank icon
         document.addEventListener('DOMContentLoaded', () => {
             gsap.to('.bank-icon', {
