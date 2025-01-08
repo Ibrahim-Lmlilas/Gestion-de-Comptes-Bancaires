@@ -14,7 +14,7 @@ class Database
         PDO::ATTR_EMULATE_PREPARES => false
     ];
 
-    public function __construct($dbname, $username = 'root', $password = '', $host = null)
+    public function __construct($dbname, $username = 'root', $password = '20JvAt02', $host = null)
     {
         $this->dbname = $dbname;
         $this->username = $username;
@@ -31,6 +31,10 @@ class Database
                 $this->conn = new PDO($dsn, $this->username, $this->password, $this->options);
             }
             return $this->conn;
+            if ($this->conn)
+                echo "Connected";
+            if ($this->conn instanceof PDO)
+                echo "AAAAAAaah";
         } catch (PDOException $e) {
             throw new Exception("Connection error: " . $e->getMessage());
         }
