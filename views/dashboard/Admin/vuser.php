@@ -1,3 +1,12 @@
+
+<?php
+session_start();
+require_once (__DIR__ . '/../../../controllers/vusers.php');
+// echo __DIR__;
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -137,7 +146,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                 <div>
                     <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">Clients Management</h2>
-                    <p class="text-white/80 text-lg">Manage your bank clients</p>
+                    <p class="text-white/80 text-lg">Total Clients: <?php echo count($result); ?></p>
                 </div>
                 <div class="flex items-center space-x-4">
                     <button onclick="openAddClientModal()" class="bg-orange-500 text-white px-4 md:px-6 py-2 rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105">
@@ -161,25 +170,24 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/10">
+                    <?php foreach($result as $user ): ?>
                         <!-- Sample Client 1 -->
                         <tr class="hover:bg-white/5">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="h-10 w-10 flex-shrink-0">
-                                        <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=John+Doe" alt="">
+                                        <img class="h-10 w-10 rounded-full" src="<?php echo $user['profile_pic'] . urlencode($user['name']); ?>" alt="">
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium">John Doe</div>
-                                        <div class="text-sm text-orange-200">john@example.com</div>
+                                        <div class="text-sm font-medium"><?php echo htmlspecialchars($user['name']); ?></div>
+                                        <div class="text-sm text-orange-300"><?php echo htmlspecialchars($user['email']); ?></div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm">1234-5678-9012-3456</div>
+                                <div class="text-sm"><?php echo $user['account_id']?></div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm">$12,500.00</div>
-                            </td>
+
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                     Active
@@ -192,7 +200,7 @@
                         </tr>
 
                         <!-- Sample Client 2 -->
-                        <tr class="hover:bg-white/5">
+                        <!-- <tr class="hover:bg-white/5">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="h-10 w-10 flex-shrink-0">
@@ -219,7 +227,8 @@
                                 <button class="text-indigo-300 hover:text-indigo-100 mr-3">Edit</button>
                                 <button class="text-red-300 hover:text-red-100">Delete</button>
                             </td>
-                        </tr>
+                        </tr> -->
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
