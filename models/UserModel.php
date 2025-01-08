@@ -52,7 +52,7 @@ class User
             $stmt->execute([$username]);
             if ($stmt->fetch())
                 throw new Exception("This username is already Taken! Try another one.");
-            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             //INSERRT Record in db
             $stmt = $this->conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
             if ($stmt->execute([$username, $email, $password])) {
