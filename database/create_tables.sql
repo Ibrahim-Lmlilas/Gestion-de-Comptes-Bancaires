@@ -45,4 +45,5 @@ ADD COLUMN role enum ('admin', 'user') DEFAULT 'user';
 ALTER TABLE users CHANGE name username VARCHAR(100) NOT NULL;
 
 
-
+ALTER TABLE users
+ADD COLUMN balance DECIMAL(10,2) DEFAULT 0.00;

@@ -5,7 +5,7 @@ require_once '../../models/UserModel.php';
 
 // if already logged in
 if (isset($_SESSION['user_id'])) {
-    header('Location:../../public/index.php');
+    header('Location:../../views/dashboard/Admin/admin.php');
     exit;
 }
 

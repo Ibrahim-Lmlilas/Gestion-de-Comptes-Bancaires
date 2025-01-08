@@ -46,7 +46,6 @@ class User
             if (!$this->conn) {
                 throw new Exception("Database connection not set");
             }
-
             $stmt = $this->conn->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
             if ($stmt->fetch())
