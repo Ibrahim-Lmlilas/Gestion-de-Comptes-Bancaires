@@ -118,14 +118,13 @@ if (isset($_POST['login'])) {
             font-size: 1rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
-            background: linear-gradient(180deg, transparent 50%, rgba(156, 39, 176, 0.1) 50%);
         }
 
         .input-field:focus+.input-label,
         .input-field:not(:placeholder-shown)+.input-label {
             transform: translateY(-2.4rem) scale(0.85);
             color: var(--primary-orange);
-            background: linear-gradient(180deg, #4A148C 50%, rgba(156, 39, 176, 0.1) 50%);
+            background: linear-gradient(180deg,rgb(133, 52, 147) 50%, rgba(156, 39, 176, 0.1) 50%);
         }
 
         .input-field::placeholder {

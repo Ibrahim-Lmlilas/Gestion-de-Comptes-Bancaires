@@ -1,4 +1,4 @@
--- Active: 1735632559180@@127.0.0.1@3306@bank
+-- Active: 1734509825551@@127.0.0.1@3306@bank
 -- Create the Bank database
 CREATE DATABASE IF NOT EXISTS Bank;
 USE Bank;
@@ -46,6 +46,3 @@ ALTER TABLE users CHANGE name username VARCHAR(100) NOT NULL;
 
 
 
-
-insert into users (username, email, password) VALUES ('user', 'test@outlook.com', '$2b$12$BV5Gf5mNMfPiSbvgWQiVlucCCcjdB3AyvOPIhSimUcNx9zEgBtI7m
-')
