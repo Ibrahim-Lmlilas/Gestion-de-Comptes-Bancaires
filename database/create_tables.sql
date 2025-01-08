@@ -1,4 +1,4 @@
--- Active: 1733930101794@@127.0.0.1@3306@bank
+-- Active: 1734509825551@@127.0.0.1@3306@bank
 -- Create the Bank database
 CREATE DATABASE IF NOT EXISTS Bank;
 USE Bank;
@@ -38,29 +38,12 @@ CREATE TABLE transactions (
 );
 
 
-INSERT INTO users (name, email, password, profile_pic) VALUES
-('Mohammed Rachidi', 'mohammed@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'https://randomuser.me/api/portraits/men/11.jpg'),
-('Amina Khalil', 'amina@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'https://randomuser.me/api/portraits/women/12.jpg'),
-('Hassan Benjelloun', 'hassan@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'https://randomuser.me/api/portraits/men/13.jpg'),
-('Nadia Sabri', 'nadia@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'https://randomuser.me/api/portraits/women/14.jpg'),
-('Omar Alaoui', 'omar@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'https://randomuser.me/api/portraits/men/15.jpg');
 
-INSERT INTO users (name, email, password, profile_pic) VALUES
-('Omar Lmlilas', 'Omaar@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'https://randomuser.me/api/portraits/men/16.jpg');
+ALTER TABLE users
+ADD COLUMN role enum ('admin', 'user') DEFAULT 'user';
+
+ALTER TABLE users CHANGE name username VARCHAR(100) NOT NULL;
 
 
--- Essayons d'abord un seul compte
-INSERT INTO accounts (user_id, account_type, balance) 
-VALUES (12, 'savings', 7000.00);
-
-
-
-
-
-
--- Vérifions si ça a marché
-SELECT * FROM accounts;
-
-SELECT * FROM users;
-
-
+ALTER TABLE users
+ADD COLUMN balance DECIMAL(10,2) DEFAULT 0.00;
