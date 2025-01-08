@@ -3,7 +3,7 @@
 session_start();
 require_once (__DIR__ . '/../../../controllers/vusers.php');
 // echo __DIR__;
-
+// var_dump( $result[0]);
 ?>
 
 
@@ -186,6 +186,10 @@ require_once (__DIR__ . '/../../../controllers/vusers.php');
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm"><?php echo $user['account_id']?></div>
+                                
+                            </td>
+                            <td>
+                            <div class="text-sm text"><?php echo $user['balance']?></div>
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -194,7 +198,7 @@ require_once (__DIR__ . '/../../../controllers/vusers.php');
 
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    Active
+                                    <?php echo $user['account_type'] ?>
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -266,23 +270,27 @@ require_once (__DIR__ . '/../../../controllers/vusers.php');
             <div class="flex-1">
                 <form class="space-y-6">
                     <div class="input-group">
-                        <input type="text" class="input-field" id="fullname" placeholder="Full Name">
+                        <input type="text" class="input-field" id="fullname" name="username" placeholder="Full Name">
                         <label for="fullname" class="input-label">Full Name</label>
                     </div>
                     <div class="input-group">
-                        <input type="email" class="input-field" id="email" placeholder="Email">
+                        <input type="email" class="input-field" id="email" name="email" placeholder="Email">
                         <label for="email" class="input-label">Email</label>
                     </div>
                     <div class="input-group">
-                        <input type="number" class="input-field" id="balance" placeholder="Initial Balance">
-                        <label for="balance" class="input-label">Initial Balance</label>
+                        <input type="number" class="input-field" id="current_balance" name="current_balance" placeholder="Initial Current account Balance">
+                        <label for="current_balance" class="input-label">Initial Current Balance</label>
                     </div>
                     <div class="input-group">
-                        <input type="password" class="input-field" id="password" placeholder="Password">
+                        <input type="number" class="input-field" id="savings_balance" name="savings_balance" placeholder="Initial Savings account Balance">
+                        <label for="savings_balance" class="input-label">Initial Savings Balance</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" class="input-field" id="password" name="password" placeholder="Password">
                         <label for="password" class="input-label">Password</label>
                     </div>
                     <div class="mt-8">
-                        <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-medium">
+                        <button type="submit" name="register" class="btn-primary w-full py-3 px-4 rounded-lg text-white font-medium">
                             Create Account
                         </button>
                     </div>
