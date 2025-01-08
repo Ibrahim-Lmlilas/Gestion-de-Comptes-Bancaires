@@ -1,5 +1,8 @@
 <?php
 
+// echo __DIR__
+require_once(__DIR__ . '/../config/config.php'); 
+
 class User
 {
     private $username;
@@ -88,4 +91,21 @@ class User
             throw new Exception("Error during Login: " . $e->getMessage());
         }
     }
+
+    public function getAllUsers() {
+        $query = "SELECT u.*, 
+                  a.id as account_id, 
+                  a.balance, 
+                  a.account_type,
+                  CASE 
+                    WHEN a.balance > 0 THEN 'Active'
+                    ELSE 'Inactive'
+                  END as status
+                  FROM users u
+                  LEFT JOIN accounts a ON u.id = a.user_id
+                  ORDER BY u.created_at DESC";
+
+        return $this->conn->query($query);
+    }
+
 }
