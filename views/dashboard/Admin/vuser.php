@@ -176,16 +176,20 @@ require_once (__DIR__ . '/../../../controllers/vusers.php');
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="h-10 w-10 flex-shrink-0">
-                                        <img class="h-10 w-10 rounded-full" src="<?php echo $user['profile_pic'] . urlencode($user['name']); ?>" alt="">
+                                        <img class="h-10 w-10 rounded-full" src="<?php echo $user['profile_pic'] . urlencode($user['username']); ?>" alt="">
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium"><?php echo htmlspecialchars($user['name']); ?></div>
+                                        <div class="text-sm font-medium"><?php echo htmlspecialchars($user['username']); ?></div>
                                         <div class="text-sm text-orange-300"><?php echo htmlspecialchars($user['email']); ?></div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm"><?php echo $user['account_id']?></div>
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm"><?php echo $user['']?></div>
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap">
