@@ -1,3 +1,17 @@
+<?php
+session_start();
+require_once __DIR__ . '/../../../controllers/TransactionController.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../../auth/login.php');
+    exit;
+}
+
+// Get user's transactions
+$transactions = getTransaction($_SESSION['user_id']);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,32 +20,6 @@
     <title>User Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary-blue: #3B82F6;
-            --primary-indigo: #6366F1;
-        }
-        .sidebar-link {
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .sidebar-link::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            height: 2px;
-            width: 0;
-            background: var(--primary-blue);
-            transition: width 0.3s ease;
-        }
-        .sidebar-link:hover::after {
-            width: 100%;
-        }
-        .sidebar-link:hover {
-            background: rgba(59, 130, 246, 0.1);
-            transform: translateX(10px);
-        }
         .card {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             transform-origin: center;
@@ -42,25 +30,19 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         @keyframes cardAppear {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .transaction-row {
+            transition: all 0.3s ease;
+        }
+        .transaction-row:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-500 via-indigo-600 to-indigo-800">
-    <!-- Mobile Menu Button -->
-    <button id="mobile-menu-button" class="fixed top-4 left-4 z-[9999] p-2 rounded-lg bg-white/10 backdrop-blur-lg md:hidden">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-    </button>
-
     <!-- Sidebar -->
     <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white/10 backdrop-blur-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-[9999]">
         <div class="flex items-center justify-center h-20 border-b border-white/10">
@@ -70,188 +52,107 @@
             <div class="px-6 py-4">
                 <span class="text-blue-200 text-sm">Menu</span>
             </div>
-            <a href="#" class="block px-6 py-3 text-white hover:text-blue-200 sidebar-link">
+            <a href="user.php" class="block px-6 py-3 text-white hover:text-blue-200 sidebar-link">
                 Dashboard
             </a>
-            <a href="#" class="block px-6 py-3 text-white hover:text-blue-200 sidebar-link">
-                Transactions
-            </a>
-            <a href="#" class="block px-6 py-3 text-white hover:text-blue-200 sidebar-link">
+            <a href="transfer.php" class="block px-6 py-3 text-white hover:text-blue-200 sidebar-link">
                 Transfer Money
             </a>
-            <a href="#" class="block px-6 py-3 text-white hover:text-blue-200 sidebar-link">
+            <a href="transactions.php" class="block px-6 py-3 text-white hover:text-blue-200 sidebar-link">
+                Transactions
+            </a>
+            <a href="profile.php" class="block px-6 py-3 text-white hover:text-blue-200 sidebar-link">
                 Profile
+            </a>
+            <a href="../../auth/logout.php" class="block px-6 py-3 text-white hover:text-blue-200 sidebar-link">
+                Logout
             </a>
         </nav>
     </div>
 
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-button" class="fixed top-4 left-4 z-[9999] p-2 rounded-lg bg-white/10 backdrop-blur-lg md:hidden">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
     <!-- Main Content -->
-    <div class="md:ml-64 p-4 md:p-8">
-        <!-- Header -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 md:p-6 mb-8">
-            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                <div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">Welcome Back, John!</h2>
-                    <p class="text-white/80 text-lg">Here's your financial summary</p>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button class="bg-blue-500 text-white px-4 md:px-6 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105">
-                        New Transfer
-                    </button>
-                    <div class="relative">
-                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=3B82F6&color=fff" 
-                             alt="User" 
-                             class="w-10 h-10 rounded-full cursor-pointer border-2 border-blue-400 hover:border-white transition-all duration-300">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Account Balance Card -->
+    <div class="md:ml-64 p-8">
+        <!-- Welcome Section -->
         <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8">
-            <div class="flex flex-col md:flex-row items-center justify-between">
-                <div>
-                    <p class="text-blue-200 mb-2">Total Balance</p>
-                    <h3 class="text-3xl font-bold text-white">$24,500.00</h3>
-                    <p class="text-white/60 mt-1">Available Balance</p>
-                </div>
-                <div class="mt-4 md:mt-0 flex space-x-4">
-                    <button class="flex items-center space-x-2 bg-blue-500/20 text-white px-4 py-2 rounded-lg hover:bg-blue-500/30 transition-all duration-300">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        <span>Add Money</span>
-                    </button>
-                    <button class="flex items-center space-x-2 bg-blue-500/20 text-white px-4 py-2 rounded-lg hover:bg-blue-500/30 transition-all duration-300">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                        </svg>
-                        <span>Withdraw</span>
-                    </button>
-                </div>
-            </div>
+            <h2 class="text-2xl font-bold text-white">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
+            <p class="text-blue-200">Here's your account overview.</p>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
-            <!-- Income Card -->
-            <div style="animation-delay: 0.1s" class="card bg-white/10 backdrop-blur-md rounded-xl p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-blue-200">Monthly Income</p>
-                        <h3 class="text-2xl font-bold text-white">$3,240</h3>
-                    </div>
-                    <div class="bg-green-500/20 p-3 rounded-lg">
-                        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <span class="text-green-400 text-sm font-semibold">↑ 8.2%</span>
-                    <span class="text-blue-200 text-sm"> from last month</span>
-                </div>
-            </div>
-
-            <!-- Expenses Card -->
-            <div style="animation-delay: 0.2s" class="card bg-white/10 backdrop-blur-md rounded-xl p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-blue-200">Monthly Expenses</p>
-                        <h3 class="text-2xl font-bold text-white">$1,890</h3>
-                    </div>
-                    <div class="bg-red-500/20 p-3 rounded-lg">
-                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <span class="text-red-400 text-sm font-semibold">↓ 3.1%</span>
-                    <span class="text-blue-200 text-sm"> from last month</span>
-                </div>
-            </div>
-
-            <!-- Savings Card -->
-            <div style="animation-delay: 0.3s" class="card bg-white/10 backdrop-blur-md rounded-xl p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-blue-200">Total Savings</p>
-                        <h3 class="text-2xl font-bold text-white">$12,580</h3>
-                    </div>
+        <!-- Account Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Current Account Card -->
+            <div class="card bg-white/10 backdrop-blur-md rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white">Current Account</h3>
                     <div class="bg-blue-500/20 p-3 rounded-lg">
                         <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                         </svg>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <span class="text-green-400 text-sm font-semibold">↑ 12.4%</span>
-                    <span class="text-blue-200 text-sm"> from last month</span>
+                <p class="text-3xl font-bold text-white mb-2">$<?php echo number_format(0, 2); // Replace with actual balance ?></p>
+                <p class="text-blue-200">Available Balance</p>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="card bg-white/10 backdrop-blur-md rounded-xl p-6">
+                <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="transfer.php" class="flex items-center justify-center p-3 bg-blue-500/20 rounded-lg text-white hover:bg-blue-500/30 transition-colors">
+                        <span>Transfer Money</span>
+                    </a>
+                    <a href="transactions.php" class="flex items-center justify-center p-3 bg-blue-500/20 rounded-lg text-white hover:bg-blue-500/30 transition-colors">
+                        <span>View Transactions</span>
+                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Recent Transactions -->
         <div class="bg-white/10 backdrop-blur-md rounded-xl p-6">
-            <h4 class="text-xl font-bold text-white mb-6">Recent Transactions</h4>
-            <div class="space-y-6">
-                <!-- Transaction Item 1 -->
-                <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                    <div class="flex items-center space-x-4">
-                        <div class="bg-green-500/20 p-3 rounded-lg">
-                            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-white font-medium">Salary Deposit</p>
-                            <p class="text-blue-200 text-sm">From Company Inc</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-green-400 font-medium">+$3,240.00</p>
-                        <p class="text-blue-200 text-sm">Today</p>
-                    </div>
-                </div>
-
-                <!-- Transaction Item 2 -->
-                <div class="flex items-center justify-between border-b border-white/10 pb-4">
-                    <div class="flex items-center space-x-4">
-                        <div class="bg-red-500/20 p-3 rounded-lg">
-                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-white font-medium">Online Shopping</p>
-                            <p class="text-blue-200 text-sm">Amazon.com</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-red-400 font-medium">-$128.00</p>
-                        <p class="text-blue-200 text-sm">Yesterday</p>
-                    </div>
-                </div>
-
-                <!-- Transaction Item 3 -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <div class="bg-blue-500/20 p-3 rounded-lg">
-                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-white font-medium">Money Transfer</p>
-                            <p class="text-blue-200 text-sm">To Sarah Smith</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-red-400 font-medium">-$450.00</p>
-                        <p class="text-blue-200 text-sm">2 days ago</p>
-                    </div>
-                </div>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-white">Recent Transactions</h3>
+                <a href="transactions.php" class="text-blue-300 hover:text-blue-200">View All</a>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-white">
+                    <thead>
+                        <tr class="text-left border-b border-white/10">
+                            <th class="py-3 px-4">Date</th>
+                            <th class="py-3 px-4">Type</th>
+                            <th class="py-3 px-4">Description</th>
+                            <th class="py-3 px-4">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if ($transactions): ?>
+                            <?php foreach (array_slice($transactions, 0, 5) as $transaction): ?>
+                                <tr class="transaction-row border-b border-white/10">
+                                    <td class="py-3 px-4"><?php echo date('M d, Y', strtotime($transaction->created_at)); ?></td>
+                                    <td class="py-3 px-4">
+                                        <span class="<?php echo $transaction->transaction_type === 'deposit' ? 'text-green-400' : 'text-red-400'; ?>">
+                                            <?php echo ucfirst($transaction->transaction_type); ?>
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4"><?php echo $transaction->description ?? 'Transaction'; ?></td>
+                                    <td class="py-3 px-4"><?php echo $transaction->transaction_type === 'deposit' ? '+' : '-'; ?>$<?php echo number_format($transaction->amount, 2); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4" class="py-4 px-4 text-center text-blue-200">No transactions found</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
