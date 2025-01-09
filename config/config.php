@@ -31,10 +31,6 @@ class Database
                 $this->conn = new PDO($dsn, $this->username, $this->password, $this->options);
             }
             return $this->conn;
-            if ($this->conn)
-                echo "Connected";
-            if ($this->conn instanceof PDO)
-                echo "AAAAAAaah";
         } catch (PDOException $e) {
             throw new Exception("Connection error: " . $e->getMessage());
         }
