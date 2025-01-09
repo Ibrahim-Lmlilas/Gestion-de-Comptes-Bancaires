@@ -184,7 +184,7 @@ require_once (__DIR__ . '/../../../controllers/vusers.php');
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-10 py-4 whitespace-nowrap">
                                 <div class="text-sm"><?php echo $user['account_id']?></div>
                                 
                             </td>
@@ -192,10 +192,7 @@ require_once (__DIR__ . '/../../../controllers/vusers.php');
                             <div class="text-sm text"><?php echo $user['balance']?></div>
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm"><?php echo $user['']?></div>
-                            </td>
-
+                         
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                     <?php echo $user['account_type'] ?>

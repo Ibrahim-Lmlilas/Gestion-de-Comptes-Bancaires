@@ -2,8 +2,10 @@
 class Transaction {
     private $db;
 
+
     // Constructor: kay7t connection dial database
     public function __construct($db) {
+        
         $this->db = $db;
     }
 
