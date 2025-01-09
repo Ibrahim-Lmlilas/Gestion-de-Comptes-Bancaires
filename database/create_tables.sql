@@ -45,6 +45,7 @@ ALTER TABLE users CHANGE name username VARCHAR(100) NOT NULL;
 
 
 
+ALTER TABLE transactions CHANGE transaction_type type ENUM('deposit', 'withdrawal', 'transfer') NOT NULL;
 
 
 
