@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../../controllers/TransactionController.php';
-require_once __DIR__ . '/../../../controllers/vusers.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -11,6 +10,13 @@ if (!isset($_SESSION['user_id'])) {
 
 $error = '';
 $success = '';
+
+// Get user's account number
+$db = new Database('bank');
+$pdo = $db->getConnection();
+$stmt = $pdo->prepare("SELECT account_number FROM accounts WHERE user_id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$userAccount = $stmt->fetch();
 
 // Handle transfer form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
@@ -22,11 +28,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
             throw new Exception("Amount must be greater than zero");
         }
 
+        // Verify beneficiary account exists
+        $stmt = $pdo->prepare("SELECT id, user_id FROM accounts WHERE account_number = ?");
+        $stmt->execute([$beneficiary_account]);
+        $beneficiaryAccount = $stmt->fetch();
+
+        if (!$beneficiaryAccount) {
+            throw new Exception("Invalid beneficiary account number");
+        }
+
+        if ($beneficiaryAccount['user_id'] == $_SESSION['user_id']) {
+            throw new Exception("Cannot transfer to your own account");
+        }
+
         $result = createTransaction(
-            $_SESSION['user_id'], // from account
+            $_SESSION['user_id'],
             'transfer',
             $amount,
-            $beneficiary_account // to account
+            $beneficiaryAccount['id']
         );
 
         if ($result) {
@@ -36,11 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
         $error = $e->getMessage();
     }
 }
-
-// Get all users for beneficiary selection (excluding current user)
-$users = array_filter(getUsers(), function($user) {
-    return $user['id'] != $_SESSION['user_id'];
-});
 ?>
 
 <!DOCTYPE html>
@@ -120,15 +134,16 @@ $users = array_filter(getUsers(), function($user) {
 
                 <form method="POST" class="space-y-6">
                     <div class="input-group">
-                        <select name="beneficiary_account" class="input-field" required>
-                            <option value="">Select Beneficiary</option>
-                            <?php foreach ($users as $user): ?>
-                                <option value="<?php echo $user['id']; ?>">
-                                    <?php echo htmlspecialchars($user['username']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <label class="input-label">Beneficiary</label>
+                        <input type="text" value="<?php echo htmlspecialchars($userAccount['account_number']); ?>" 
+                               class="input-field" readonly>
+                        <label class="input-label">Your Account Number</label>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" name="beneficiary_account" pattern="[0-9]{10}" 
+                               class="input-field" placeholder=" " required
+                               title="Please enter a valid 10-digit account number">
+                        <label class="input-label">Beneficiary Account Number</label>
                     </div>
 
                     <div class="input-group">

@@ -110,6 +110,19 @@ class User
         return false;
     }
 
+    private function generateAccountNumber() {
+        do {
+            $accountNumber = mt_rand(1000000000, 9999999999);
+            
+            // Check if account number already exists
+            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM accounts WHERE account_number = ?");
+            $stmt->execute([$accountNumber]);
+            $exists = $stmt->fetchColumn();
+        } while ($exists > 0);
+        
+        return $accountNumber;
+    }
+
     public function createUser($username, $email, $password, $role = 'user')
     {
         try {
@@ -120,10 +133,11 @@ class User
             $stmt->execute([$username, $email, $hashedPassword, $role]);
             
             $userId = $this->conn->lastInsertId();
+            $accountNumber = $this->generateAccountNumber();
 
-            // Create a default account for the user
-            $stmt = $this->conn->prepare("INSERT INTO accounts (user_id, account_type, balance) VALUES (?, 'current', 0.00)");
-            $stmt->execute([$userId]);
+            // Create a default account for the user with the generated account number
+            $stmt = $this->conn->prepare("INSERT INTO accounts (user_id, account_type, balance, account_number) VALUES (?, 'current', 0.00, ?)");
+            $stmt->execute([$userId, $accountNumber]);
 
             $this->conn->commit();
             return $userId;

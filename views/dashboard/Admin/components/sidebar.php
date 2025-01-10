@@ -6,7 +6,7 @@
 
 <div id="sidebar" class="fixed left-0 top-0 w-64 h-full bg-white/10 backdrop-blur-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-[9999]">
     <div class="flex items-center justify-center h-20 border-b border-white/10">
-        <h1 class="text-2xl font-bold text-white">Bank Admin</h1>
+        <h1 class="text-2xl font-bold text-white">Banka LIK Admin</h1>
     </div>
     <nav class="mt-6">
         <div class="px-6 py-4">

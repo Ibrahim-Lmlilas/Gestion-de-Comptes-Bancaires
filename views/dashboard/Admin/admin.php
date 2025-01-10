@@ -3,7 +3,7 @@ session_start();
 require_once __DIR__ . '/../../../controllers/UserController.php';
 require_once __DIR__ . '/../../../controllers/TransactionController.php';
 
-// Check if user is admin
+// Check if user is logged in and is admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../auth/login.php');
     exit;
@@ -119,8 +119,8 @@ $totalAmountTransactions = getTotalAmountTransactions();
                 ?>
                     <div class="activity-item flex items-center justify-between border-b border-white/10 pb-4">
                         <div class="flex items-center space-x-4">
-                            <div class="bg-<?php echo $transaction->transaction_type === 'deposit' ? 'green' : ($transaction->transaction_type === 'withdrawal' ? 'red' : 'blue'); ?>-500/20 p-3 rounded-lg">
-                                <svg class="w-6 h-6 text-<?php echo $transaction->transaction_type === 'deposit' ? 'green' : ($transaction->transaction_type === 'withdrawal' ? 'red' : 'blue'); ?>-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="bg-<?php echo $transaction->type === 'deposit' ? 'green' : ($transaction->type === 'withdrawal' ? 'red' : 'blue'); ?>-500/20 p-3 rounded-lg">
+                                <svg class="w-6 h-6 text-<?php echo $transaction->type === 'deposit' ? 'green' : ($transaction->type === 'withdrawal' ? 'red' : 'blue'); ?>-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
                             </div>
@@ -128,9 +128,9 @@ $totalAmountTransactions = getTotalAmountTransactions();
                                 <p class="font-semibold text-white"><?php echo ucfirst($transaction->type); ?></p>
                                 <p class="text-sm text-orange-200">
                                     <?php 
-                                    echo $transaction->sender_name ? 
-                                        "From {$transaction->sender_name}" : 
-                                        ($transaction->receiver_name ? "To {$transaction->receiver_name}" : "System");
+                                    echo $transaction->type === 'transfer' ? 
+                                        "From {$transaction->source_account} ({$transaction->username}) To {$transaction->beneficiary_account} ({$transaction->username})" 
+                                        : "By {$transaction->source_account} ({$transaction->username})";
                                     ?>
                                 </p>
                             </div>

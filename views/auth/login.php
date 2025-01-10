@@ -3,47 +3,48 @@ session_start();
 require_once '../../config/config.php';
 require_once '../../models/UserModel.php';
 
-// if already logged in
+// if already logged in, redirect based on role
 if (isset($_SESSION['user_id'])) {
-    header('Location:../../views/dashboard/Admin/admin.php');
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: ../dashboard/Admin/admin.php');
+    } else {
+        header('Location: ../dashboard/User/user.php');
+    }
     exit;
 }
 
-// $test_db = new Database('bank');
-// $pdo = $test_db->getConnection();
-// $hashedp = password_hash("20JvAt02", PASSWORD_DEFAULT);
-// $test_username = 'administrator';
-// $test_email = 'admin@test.com';
-// $role = 'admin';
-// $aze = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-// $aze->execute([$test_username, $test_email, $hashedp, $role]);
-// if ($aze->fetch()) {
-//     echo "user created \n";
-// }
+$error = '';
 
-if (isset($_POST['login'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
     try {
         $db = new Database('bank');
         $conn = $db->getConnection();
+        $user = new User($conn);
+        
+        $result = $user->authenticate($email, $password);
+        
+        if ($result) {
+            // Set session variables
+            $_SESSION['user_id'] = $result['id'];
+            $_SESSION['username'] = $result['username'];
+            $_SESSION['email'] = $result['email'];
+            $_SESSION['role'] = $result['role'];
 
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_OBJ);
-
-        if ($user && password_verify($password, $user->password)) {
-            $_SESSION['user_id'] = $user->id;
-            $_SESSION['username'] = $user->username;
-            $_SESSION['role'] = $user->role;
-            header('Location:../../public/index.php');
+            // Redirect based on role
+            if ($result['role'] === 'admin') {
+                header('Location: ../dashboard/Admin/admin.php');
+            } else {
+                header('Location: ../dashboard/User/user.php');
+            }
             exit;
         } else {
             $error = "Invalid email or password";
         }
     } catch (Exception $e) {
-        $error = "An error occurred. Please try again later.";
+        $error = "An error occurred. Please try again.";
     }
 }
 ?>
