@@ -12,6 +12,16 @@ $error = '';
 $success = '';
 $users = getUsers();
 
+// Add search functionality
+$searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
+if ($searchQuery) {
+    $users = array_filter($users, function($user) use ($searchQuery) {
+        return stripos($user['username'], $searchQuery) !== false || 
+               stripos($user['email'], $searchQuery) !== false ||
+               stripos($user['role'], $searchQuery) !== false;
+    });
+}
+
 // Handle Delete User
 if (isset($_POST['delete_user'])) {
     try {
@@ -65,7 +75,7 @@ if (isset($_POST['edit_user'])) {
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-orange-500 via-purple-600 to-purple-800">
+<body class="bg-gradient-to-br from-rose-950 via-yellow-950 to-stone-600">
     <!-- Include Sidebar -->
     <?php include 'components/sidebar.php'; ?>
 
@@ -101,48 +111,23 @@ if (isset($_POST['edit_user'])) {
 
         <!-- Users Table -->
         <div class="bg-white/10 backdrop-blur-md rounded-xl p-6">
-            <div class="overflow-x-auto">
-                <table class="w-full text-white">
-                    <thead>
-                        <tr class="text-left border-b border-white/10">
-                            <th class="py-3 px-4">Username</th>
-                            <th class="py-3 px-4">Email</th>
-                            <th class="py-3 px-4">Role</th>
-                            <th class="py-3 px-4">Status</th>
-                            <th class="py-3 px-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($users as $user): ?>
-                            <tr class="user-row border-b border-white/10">
-                                <td class="py-3 px-4"><?php echo htmlspecialchars($user['username']); ?></td>
-                                <td class="py-3 px-4"><?php echo htmlspecialchars($user['email']); ?></td>
-                                <td class="py-3 px-4">
-                                    <span class="px-2 py-1 rounded-full text-sm <?php echo $user['role'] === 'admin' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'; ?>">
-                                        <?php echo ucfirst($user['role']); ?>
-                                    </span>
-                                </td>
-                                <td class="py-3 px-4">
-                                    <span class="px-2 py-1 rounded-full text-sm <?php echo $user['status'] === 'Active' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'; ?>">
-                                        <?php echo $user['status']; ?>
-                                    </span>
-                                </td>
-                                <td class="py-3 px-4">
-                                    <div class="flex space-x-2">
-                                        <button onclick="openEditModal(<?php echo htmlspecialchars(json_encode($user)); ?>)"
-                                                class="px-3 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-lg transition-colors">
-                                            Edit
-                                        </button>
-                                        <button onclick="openDeleteModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['username']); ?>')"
-                                                class="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition-colors">
-                                            Delete
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <form id="searchForm" class="mb-6">
+                <div class="flex gap-4">
+                    <input type="text" 
+                           id="searchInput"
+                           name="search" 
+                           placeholder="Rechercher par nom, email ou rôle..." 
+                           value="<?php echo htmlspecialchars($searchQuery); ?>"
+                           class="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50">
+                    <button type="button" 
+                            onclick="resetSearch()"
+                            class="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors">
+                        Réinitialiser
+                    </button>
+                </div>
+            </form>
+            <div id="usersTableContainer" class="overflow-x-auto">
+                <!-- Table content will be updated dynamically -->
             </div>
         </div>
     </div>
@@ -150,7 +135,7 @@ if (isset($_POST['edit_user'])) {
     <!-- Edit User Modal -->
     <div id="editModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-6 max-w-md w-full">
+            <div class="bg-gradient-to-br from-rose-950 to-rose-950 rounded-xl p-6 max-w-md w-full">
                 <h3 class="text-xl font-bold text-white mb-4">Edit User</h3>
                 <form method="POST" class="space-y-4">
                     <input type="hidden" name="user_id" id="edit_user_id">
@@ -178,7 +163,7 @@ if (isset($_POST['edit_user'])) {
                             Cancel
                         </button>
                         <button type="submit" name="edit_user"
-                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                                class="px-4 py-2 bg-green-500 hover:bg-green-700 text-white rounded-lg transition-colors">
                             Save Changes
                         </button>
                     </div>
@@ -190,7 +175,7 @@ if (isset($_POST['edit_user'])) {
     <!-- Delete User Modal -->
     <div id="deleteModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-6 max-w-md w-full">
+            <div class="bg-gradient-to-br from-rose-950 to-rose-950 rounded-xl p-6 max-w-md w-full">
                 <h3 class="text-xl font-bold text-white mb-4">Delete User</h3>
                 <p class="text-white mb-6">Are you sure you want to delete <span id="delete_username" class="font-semibold"></span>?</p>
                 <form method="POST" class="flex justify-end space-x-3">
@@ -275,13 +260,44 @@ if (isset($_POST['edit_user'])) {
             document.getElementById('deleteModal').classList.add('hidden');
         }
 
-        function openAddClientModal() {
+
+      function openAddClientModal() {
             document.getElementById('addClientModal').classList.remove('hidden');
         }
 
         function closeAddClientModal() {
             document.getElementById('addClientModal').classList.add('hidden');
         }
+
+        let searchTimeout;
+        const searchInput = document.getElementById('searchInput');
+        const usersTableContainer = document.getElementById('usersTableContainer');
+
+        // Live search with debounce
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(this.value);
+            }, 300);
+        });
+
+        function performSearch(query) {
+            fetch(`search_users.php?search=${encodeURIComponent(query)}`)
+                .then(response => response.text())
+                .then(html => {
+                    usersTableContainer.innerHTML = html;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function resetSearch() {
+            searchInput.value = '';
+            performSearch('');
+        }
+
+        // Initial load
+        performSearch('');
+
     </script>
 </body>
 </html>

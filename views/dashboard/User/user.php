@@ -142,7 +142,8 @@ usort($transactions, function($a, $b) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($transactions as $trans): ?>
+
+                      <?php foreach ($transactions as $trans): ?>
                         <tr class="border-b border-gray-700">
                             <td class="py-2"><?= date('M d, Y H:i', strtotime($trans['created_at'])) ?></td>
                             <td class="py-2"><?= ucfirst($trans['type']) ?></td>
@@ -168,7 +169,27 @@ usort($transactions, function($a, $b) {
                             </td>
                         </tr>
                         <?php endforeach; ?>
-                    </tbody>
+
+                        <?php if ($transactions): ?>
+                            <?php foreach (array_slice($transactions, 0, 5) as $transaction): ?>
+                                <tr class="transaction-row border-b border-white/10">
+                                    <td class="py-3 px-4"><?php echo date('M d, Y', strtotime($transaction->created_at)); ?></td>
+                                    <td class="py-3 px-4">
+                                        <span class="<?php echo $transaction->type === 'deposit' ? 'text-green-400' : 'text-red-400'; ?>">
+                                            <?php echo ucfirst($transaction->type); ?>
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4"><?php echo $transaction->description ?? 'Transaction'; ?></td>
+                                    <td class="py-3 px-4"><?php echo $transaction->type === 'deposit' ? '+' : '-'; ?>$<?php echo number_format($transaction->amount, 2); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4" class="py-4 px-4 text-center text-blue-200">No transactions found</td>
+                            </tr>
+                        <?php endif; ?>
+
+              </tbody>
                 </table>
             </div>
         </div>
