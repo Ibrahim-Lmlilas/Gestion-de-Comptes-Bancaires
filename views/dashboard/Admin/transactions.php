@@ -29,7 +29,7 @@ $totalAmount = getTotalAmountTransactions();
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-orange-500 via-purple-600 to-purple-800">
+<body class="bg-gradient-to-br from-rose-950 via-yellow-950 to-stone-600">
     <!-- Sidebar (reuse from admin.php) -->
     <?php include 'components/sidebar.php'; ?>
 

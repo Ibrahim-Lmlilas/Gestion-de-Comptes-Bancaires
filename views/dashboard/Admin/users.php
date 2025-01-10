@@ -65,7 +65,7 @@ if (isset($_POST['edit_user'])) {
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-orange-500 via-purple-600 to-purple-800">
+<body class="bg-gradient-to-br from-rose-950 via-yellow-950 to-stone-600">
     <!-- Include Sidebar -->
     <?php include 'components/sidebar.php'; ?>
 
@@ -140,7 +140,7 @@ if (isset($_POST['edit_user'])) {
     <!-- Edit User Modal -->
     <div id="editModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-6 max-w-md w-full">
+            <div class="bg-gradient-to-br from-rose-950 to-rose-950 rounded-xl p-6 max-w-md w-full">
                 <h3 class="text-xl font-bold text-white mb-4">Edit User</h3>
                 <form method="POST" class="space-y-4">
                     <input type="hidden" name="user_id" id="edit_user_id">
@@ -168,7 +168,7 @@ if (isset($_POST['edit_user'])) {
                             Cancel
                         </button>
                         <button type="submit" name="edit_user"
-                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                                class="px-4 py-2 bg-green-500 hover:bg-green-700 text-white rounded-lg transition-colors">
                             Save Changes
                         </button>
                     </div>
@@ -180,7 +180,7 @@ if (isset($_POST['edit_user'])) {
     <!-- Delete User Modal -->
     <div id="deleteModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-6 max-w-md w-full">
+            <div class="bg-gradient-to-br from-rose-950 to-rose-950 rounded-xl p-6 max-w-md w-full">
                 <h3 class="text-xl font-bold text-white mb-4">Delete User</h3>
                 <p class="text-white mb-6">Are you sure you want to delete <span id="delete_username" class="font-semibold"></span>?</p>
                 <form method="POST" class="flex justify-end space-x-3">

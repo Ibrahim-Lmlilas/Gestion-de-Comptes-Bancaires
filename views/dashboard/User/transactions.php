@@ -66,7 +66,7 @@ $transactions = getTransaction($_SESSION['user_id']);
                                     <td class="py-3 px-4"><?php echo date('M d, Y', strtotime($transaction->created_at)); ?></td>
                                     <td class="py-3 px-4">
                                         <?php 
-                                        $typeClass = match($transaction->transaction_type) {
+                                        $typeClass = match($transaction->type) {
                                             'deposit' => 'text-green-400',
                                             'withdrawal' => 'text-red-400',
                                             'transfer' => 'text-blue-400',
@@ -74,13 +74,13 @@ $transactions = getTransaction($_SESSION['user_id']);
                                         };
                                         ?>
                                         <span class="<?php echo $typeClass; ?>">
-                                            <?php echo ucfirst($transaction->transaction_type); ?>
+                                            <?php echo ucfirst($transaction->type); ?>
                                         </span>
                                     </td>
                                     <td class="py-3 px-4"><?php echo $transaction->description ?? 'Transaction'; ?></td>
                                     <td class="py-3 px-4">
-                                        <span class="<?php echo $transaction->transaction_type === 'deposit' ? 'text-green-400' : 'text-red-400'; ?>">
-                                            <?php echo $transaction->transaction_type === 'deposit' ? '+' : '-'; ?>
+                                        <span class="<?php echo $transaction->type === 'deposit' ? 'text-green-400' : 'text-red-400'; ?>">
+                                            <?php echo $transaction->type === 'deposit' ? '+' : '-'; ?>
                                             $<?php echo number_format($transaction->amount, 2); ?>
                                         </span>
                                     </td>
