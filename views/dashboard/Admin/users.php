@@ -87,6 +87,16 @@ if (isset($_POST['edit_user'])) {
             <p class="text-orange-200">Manage system users and their permissions.</p>
         </div>
 
+        <div class="flex justify-end mb-6">
+            <button onclick="openAddClientModal()" 
+                    class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Add Client
+            </button>
+        </div>
+
         <?php if ($error): ?>
             <div class="bg-red-500/20 text-red-300 p-4 rounded-lg mb-6">
                 <?php echo htmlspecialchars($error); ?>
@@ -183,6 +193,50 @@ if (isset($_POST['edit_user'])) {
         </div>
     </div>
 
+    <!-- Add Client Modal -->
+    <div id="addClientModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-6 max-w-md w-full">
+                <h3 class="text-xl font-bold text-white mb-4">Add New Client</h3>
+                <form method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-white mb-2">Username</label>
+                        <input type="text" name="new_username" required
+                               class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-white mb-2">Email</label>
+                        <input type="email" name="new_email" required
+                               class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-white mb-2">Password</label>
+                        <input type="password" name="new_password" required
+                               class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-white mb-2">Role</label>
+                        <select name="new_role" 
+                                class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeAddClientModal()"
+                                class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" name="add_client"
+                                class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors">
+                            Add Client
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         function openEditModal(user) {
             document.getElementById('edit_user_id').value = user.id;
@@ -204,6 +258,15 @@ if (isset($_POST['edit_user'])) {
 
         function closeDeleteModal() {
             document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+
+      function openAddClientModal() {
+            document.getElementById('addClientModal').classList.remove('hidden');
+        }
+
+        function closeAddClientModal() {
+            document.getElementById('addClientModal').classList.add('hidden');
         }
 
         let searchTimeout;
@@ -234,6 +297,7 @@ if (isset($_POST['edit_user'])) {
 
         // Initial load
         performSearch('');
+
     </script>
 </body>
 </html>
