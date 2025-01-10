@@ -29,7 +29,7 @@ $totalAmount = getTotalAmountTransactions();
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-orange-500 via-purple-600 to-purple-800">
+<body class="bg-gradient-to-br from-rose-950 via-yellow-950 to-stone-600">
     <!-- Sidebar (reuse from admin.php) -->
     <?php include 'components/sidebar.php'; ?>
 
@@ -69,14 +69,14 @@ $totalAmount = getTotalAmountTransactions();
                                 <td class="py-3 px-4"><?php echo date('M d, Y', strtotime($transaction->created_at)); ?></td>
                                 <td class="py-3 px-4">
                                     <?php 
-                                    $typeClass = match($transaction->transaction_type) {
+                                    $typeClass = match($transaction->type) {
                                         'deposit' => 'text-green-400',
                                         'withdrawal' => 'text-red-400',
                                         'transfer' => 'text-blue-400',
                                         default => 'text-white'
                                     };
                                     ?>
-                                    <span class="<?php echo $typeClass; ?>"><?php echo ucfirst($transaction->transaction_type); ?></span>
+                                    <span class="<?php echo $typeClass; ?>"><?php echo ucfirst($transaction->type); ?></span>
                                 </td>
                                 <td class="py-3 px-4"><?php echo $transaction->sender_name ?? 'N/A'; ?></td>
                                 <td class="py-3 px-4"><?php echo $transaction->receiver_name ?? 'N/A'; ?></td>

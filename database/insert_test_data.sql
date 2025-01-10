@@ -140,3 +140,81 @@ JOIN accounts a2 ON a2.account_type = 'current'
 JOIN users u2 ON a2.user_id = u2.id
 WHERE u1.email = 'admin@example.com' AND a1.account_type = 'current'
 AND u2.email = 'john@example.com';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS sp_retired_amount
+   DELIMITER $$
+
+
+CREATE PROCEDURE sp_retired_amount(
+    IN accountId INT,
+    IN withdrawAmount DECIMAL(10,2)
+)
+BEGIN
+    -- Déclarer une variable pour stocker le solde actuel
+    DECLARE currentBalance DECIMAL(10,2);
+
+    -- Récupérer le solde actuel
+    SELECT balance INTO currentBalance
+    FROM accounts 
+    WHERE id = accountId;
+
+    -- Vérification du solde avant retrait
+    IF currentBalance >= withdrawAmount THEN
+        -- Mise à jour du solde du compte
+        UPDATE accounts
+        SET balance = balance - withdrawAmount, updated_at = NOW()
+        WHERE id = accountId;
+
+        -- Enregistrer la transaction dans l'historique
+        INSERT INTO transactions (account_id, transaction_type, amount, created_at)
+        VALUES (accountId, 'retrait', withdrawAmount, NOW());
+    ELSE
+        -- Lever une erreur si le zsolde est insuffisant
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Solde insuffisant pour ce retrait.';
+    END IF;
+END $$
+
+DELIMITER ;
+
+CALL sp_retired_amount(1, 80.00); -- Pour retirer 100€ du compte avec ID 1

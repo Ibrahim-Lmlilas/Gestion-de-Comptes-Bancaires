@@ -49,7 +49,7 @@ $totalAmountTransactions = getTotalAmountTransactions();
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-orange-500 via-purple-600 to-purple-800">
+<body class="bg-gradient-to-br from-rose-950 via-yellow-950 to-stone-600">
     <!-- Include Sidebar -->
     <?php include 'components/sidebar.php'; ?>
 
@@ -119,8 +119,8 @@ $totalAmountTransactions = getTotalAmountTransactions();
                 ?>
                     <div class="activity-item flex items-center justify-between border-b border-white/10 pb-4">
                         <div class="flex items-center space-x-4">
-                            <div class="bg-<?php echo $transaction->transaction_type === 'deposit' ? 'green' : ($transaction->transaction_type === 'withdrawal' ? 'red' : 'blue'); ?>-500/20 p-3 rounded-lg">
-                                <svg class="w-6 h-6 text-<?php echo $transaction->transaction_type === 'deposit' ? 'green' : ($transaction->transaction_type === 'withdrawal' ? 'red' : 'blue'); ?>-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="bg-<?php echo $transaction->type === 'deposit' ? 'green' : ($transaction->type === 'withdrawal' ? 'red' : 'blue'); ?>-500/20 p-3 rounded-lg">
+                                <svg class="w-6 h-6 text-<?php echo $transaction->type === 'deposit' ? 'green' : ($transaction->type === 'withdrawal' ? 'red' : 'blue'); ?>-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
                             </div>

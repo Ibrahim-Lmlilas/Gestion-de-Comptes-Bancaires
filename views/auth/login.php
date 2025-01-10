@@ -37,7 +37,7 @@ if (isset($_POST['login'])) {
             $_SESSION['user_id'] = $user->id;
             $_SESSION['username'] = $user->username;
             $_SESSION['role'] = $user->role;
-            header('Location:../../public/index.php');
+            header('Location:../../views/dashboard/Admin/admin.php');
             exit;
         } else {
             $error = "Invalid email or password";
@@ -216,12 +216,13 @@ if (isset($_POST['login'])) {
         }
     </style>
 </head>
+<!-- <body class="bg-gradient-to-br from-rose-950 via-yellow-950 to-stone-600"> -->
 
-<body class="bg-gradient-to-br from-purple-700 to-purple-900 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-purple-900/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-4xl flex flex-col md:flex-row gap-8">
+<body class="bg-pink-950 from-purple-700 to-purple-900 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-rose-800 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-4xl flex flex-col md:flex-row gap-8">
         <!-- Left Side - Bank Icon and Welcome Message -->
         <div class="flex-1 flex flex-col items-center justify-center">
-            <div class="bank-icon bg-orange-400 rounded-full p-8 w-32 h-32 mx-auto mb-8 shadow-lg floating">
+            <div class="bank-icon bg-rose-950 rounded-full p-8 w-32 h-32 mx-auto mb-8 shadow-lg floating">
                 <div class="text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11m16-11v11m-8-11v11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

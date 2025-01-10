@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../../controllers/TransactionController.php';
-require_once __DIR__ . '/../../../controllers/vusers.php';
+require_once __DIR__ . '/../../../controllers/UserController.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
