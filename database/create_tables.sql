@@ -4,10 +4,11 @@ USE Bank;
 -- Create users table
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
+    username VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     profile_pic VARCHAR(255),
+    role ENUM('admin', 'user') DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -17,7 +18,9 @@ CREATE TABLE accounts (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     account_type ENUM('current', 'savings') NOT NULL,
+    account_number VARCHAR(20) NOT NULL UNIQUE,
     balance DECIMAL(10,2) DEFAULT 0.00,
+    status ENUM('Active', 'Inactive') DEFAULT 'Active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
@@ -27,7 +30,7 @@ CREATE TABLE accounts (
 CREATE TABLE transactions (
     id INT PRIMARY KEY AUTO_INCREMENT,
     account_id INT NOT NULL,
-    transaction_type ENUM('deposit', 'withdrawal', 'transfer') NOT NULL,
+    type ENUM('deposit', 'withdrawal', 'transfer') NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
     beneficiary_account_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -35,50 +38,26 @@ CREATE TABLE transactions (
     FOREIGN KEY (beneficiary_account_id) REFERENCES accounts(id)
 );
 
-
-
-ALTER TABLE users
-ADD COLUMN role enum ('admin', 'user') DEFAULT 'user';
-
-ALTER TABLE users CHANGE name username VARCHAR(100) NOT NULL;
-
-
-
-
-ALTER TABLE transactions CHANGE transaction_type type ENUM('deposit', 'withdrawal', 'transfer') NOT NULL;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- Insert test users if they don't exist
 INSERT IGNORE INTO users (username, email, password, role) VALUES
 ('John Doe', 'john@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user'), -- password: password
 ('Jane Smith', 'jane@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user'),
 ('Admin User', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 
 -- Insert test accounts if they don't exist
-INSERT IGNORE INTO accounts (user_id, account_type, balance) 
-SELECT u.id, 'savings', 5000.00 FROM users u WHERE u.email = 'john@example.com'
+INSERT IGNORE INTO accounts (user_id, account_type, account_number, balance, status) 
+SELECT u.id, 'savings', FLOOR(RAND() * 9000000000) + 1000000000, 5000.00, 'Active' FROM users u WHERE u.email = 'john@example.com'
 UNION ALL
-SELECT u.id, 'current', 2500.00 FROM users u WHERE u.email = 'john@example.com'
+SELECT u.id, 'current', FLOOR(RAND() * 9000000000) + 1000000000, 2500.00, 'Active' FROM users u WHERE u.email = 'john@example.com'
 UNION ALL
-SELECT u.id, 'savings', 7500.00 FROM users u WHERE u.email = 'jane@example.com'
+SELECT u.id, 'savings', FLOOR(RAND() * 9000000000) + 1000000000, 7500.00, 'Active' FROM users u WHERE u.email = 'jane@example.com'
 UNION ALL
-SELECT u.id, 'current', 3000.00 FROM users u WHERE u.email = 'jane@example.com'
+SELECT u.id, 'current', FLOOR(RAND() * 9000000000) + 1000000000, 3000.00, 'Active' FROM users u WHERE u.email = 'jane@example.com'
 UNION ALL
-SELECT u.id, 'current', 10000.00 FROM users u WHERE u.email = 'admin@example.com';
+SELECT u.id, 'current', FLOOR(RAND() * 9000000000) + 1000000000, 10000.00, 'Active' FROM users u WHERE u.email = 'admin@example.com';
 
 -- Insert test transactions if they don't exist (using account IDs from the previous inserts)
-INSERT IGNORE INTO transactions (account_id, transaction_type, amount, beneficiary_account_id, created_at)
+INSERT IGNORE INTO transactions (account_id, type, amount, beneficiary_account_id, created_at)
 SELECT 
     a.id,
     'deposit',
@@ -123,7 +102,7 @@ WHERE u1.email = 'john@example.com' AND a1.account_type = 'current'
 AND u2.email = 'jane@example.com';
 
 -- Jane's transactions
-INSERT IGNORE INTO transactions (account_id, transaction_type, amount, beneficiary_account_id, created_at)
+INSERT IGNORE INTO transactions (account_id, type, amount, beneficiary_account_id, created_at)
 SELECT 
     a.id,
     'deposit',
@@ -168,7 +147,7 @@ WHERE u1.email = 'jane@example.com' AND a1.account_type = 'savings'
 AND u2.email = 'john@example.com';
 
 -- Admin's transactions
-INSERT IGNORE INTO transactions (account_id, transaction_type, amount, beneficiary_account_id, created_at)
+INSERT IGNORE INTO transactions (account_id, type, amount, beneficiary_account_id, created_at)
 SELECT 
     a.id,
     'deposit',
@@ -201,3 +180,29 @@ JOIN accounts a2 ON a2.account_type = 'current'
 JOIN users u2 ON a2.user_id = u2.id
 WHERE u1.email = 'admin@example.com' AND a1.account_type = 'current'
 AND u2.email = 'john@example.com';
+
+-- Insert test transactions if they don't exist
+INSERT IGNORE INTO transactions (account_id, type, amount, beneficiary_account_id, created_at)
+SELECT a1.id, 'deposit', 1000.00, NULL, DATE_SUB(NOW(), INTERVAL 5 DAY)
+FROM accounts a1
+INNER JOIN users u ON a1.user_id = u.id
+WHERE u.email = 'john@example.com' AND a1.account_type = 'current'
+LIMIT 1;
+
+INSERT IGNORE INTO transactions (account_id, type, amount, beneficiary_account_id, created_at)
+SELECT a1.id, 'withdrawal', 500.00, NULL, DATE_SUB(NOW(), INTERVAL 3 DAY)
+FROM accounts a1
+INNER JOIN users u ON a1.user_id = u.id
+WHERE u.email = 'john@example.com' AND a1.account_type = 'current'
+LIMIT 1;
+
+INSERT IGNORE INTO transactions (account_id, type, amount, beneficiary_account_id, created_at)
+SELECT a1.id, 'transfer', 200.00, a2.id, DATE_SUB(NOW(), INTERVAL 1 DAY)
+FROM accounts a1
+INNER JOIN users u1 ON a1.user_id = u1.id
+INNER JOIN accounts a2 ON a2.account_type = 'current'
+INNER JOIN users u2 ON a2.user_id = u2.id
+WHERE u1.email = 'john@example.com' 
+  AND u2.email = 'jane@example.com'
+  AND a1.account_type = 'current'
+LIMIT 1;

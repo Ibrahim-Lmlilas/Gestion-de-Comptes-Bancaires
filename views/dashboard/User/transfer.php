@@ -1,9 +1,8 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../../controllers/TransactionController.php';
-
-require_once __DIR__ . '/../../../controllers/UserController.php';
-
+require_once __DIR__ . '/../../../models/UserModel.php';
+require_once __DIR__ . '/../../../models/Account.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -14,46 +13,38 @@ if (!isset($_SESSION['user_id'])) {
 $error = '';
 $success = '';
 
-// Get user's account number
+// Get user's accounts
 $db = new Database('bank');
 $pdo = $db->getConnection();
-$stmt = $pdo->prepare("SELECT account_number FROM accounts WHERE user_id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$userAccount = $stmt->fetch();
+$account = new Account($pdo);
+$userAccounts = $account->getAccountsByUserId($_SESSION['user_id']);
+
+// Separate accounts by type
+$currentAccount = null;
+$savingsAccount = null;
+foreach ($userAccounts as $acc) {
+    if ($acc['account_type'] === 'current') {
+        $currentAccount = $acc;
+    } elseif ($acc['account_type'] === 'savings') {
+        $savingsAccount = $acc;
+    }
+}
 
 // Handle transfer form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
     try {
         $amount = floatval($_POST['amount']);
+        $source_account = $_POST['source_account'];
         $beneficiary_account = $_POST['beneficiary_account'];
         
         if ($amount <= 0) {
             throw new Exception("Amount must be greater than zero");
         }
 
-        // Verify beneficiary account exists
-        $stmt = $pdo->prepare("SELECT id, user_id FROM accounts WHERE account_number = ?");
-        $stmt->execute([$beneficiary_account]);
-        $beneficiaryAccount = $stmt->fetch();
-
-        if (!$beneficiaryAccount) {
-            throw new Exception("Invalid beneficiary account number");
-        }
-
-        if ($beneficiaryAccount['user_id'] == $_SESSION['user_id']) {
-            throw new Exception("Cannot transfer to your own account");
-        }
-
-        $result = createTransaction(
-            $_SESSION['user_id'],
-            'transfer',
-            $amount,
-            $beneficiaryAccount['id']
-        );
-
-        if ($result) {
-            $success = "Transfer completed successfully!";
-        }
+        // Create the transaction
+        createTransaction($source_account, 'transfer', $amount, $beneficiary_account);
+        $success = "Transfer completed successfully!";
+        
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
@@ -68,6 +59,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
     <title>Transfer Money</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        .card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+            animation: cardAppear 0.6s backwards;
+        }
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .input-group {
             position: relative;
             margin-bottom: 1.5rem;
@@ -118,7 +122,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
             <!-- Header -->
             <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8">
                 <h2 class="text-2xl font-bold text-white">Transfer Money</h2>
-                <p class="text-blue-200">Send money to other users securely.</p>
+                <p class="text-blue-200">Send money to other accounts securely.</p>
+            </div>
+
+            <!-- Account Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <?php if ($currentAccount): ?>
+                <div class="card bg-white/10 backdrop-blur-md rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-2">Current Account</h3>
+                    <p class="text-sm text-blue-200 mb-1">Account: <?= htmlspecialchars($currentAccount['account_number']) ?></p>
+                    <p class="text-2xl font-bold text-white">$<?= number_format($currentAccount['balance'], 2) ?></p>
+                </div>
+                <?php endif; ?>
+
+                <?php if ($savingsAccount): ?>
+                <div class="card bg-white/10 backdrop-blur-md rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-2">Savings Account</h3>
+                    <p class="text-sm text-blue-200 mb-1">Account: <?= htmlspecialchars($savingsAccount['account_number']) ?></p>
+                    <p class="text-2xl font-bold text-white">$<?= number_format($savingsAccount['balance'], 2) ?></p>
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Transfer Form -->
@@ -137,15 +160,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
 
                 <form method="POST" class="space-y-6">
                     <div class="input-group">
-                        <input type="text" value="<?php echo htmlspecialchars($userAccount['account_number']); ?>" 
-                               class="input-field" readonly>
-                        <label class="input-label">Your Account Number</label>
+                        <select name="source_account" class="input-field" required>
+                            <?php if ($currentAccount): ?>
+                            <option value="<?= htmlspecialchars($currentAccount['account_number']) ?>">
+                                Current Account - $<?= number_format($currentAccount['balance'], 2) ?>
+                            </option>
+                            <?php endif; ?>
+                            <?php if ($savingsAccount): ?>
+                            <option value="<?= htmlspecialchars($savingsAccount['account_number']) ?>">
+                                Savings Account - $<?= number_format($savingsAccount['balance'], 2) ?>
+                            </option>
+                            <?php endif; ?>
+                        </select>
+                        <label class="input-label">From Account</label>
                     </div>
 
                     <div class="input-group">
-                        <input type="text" name="beneficiary_account" pattern="[0-9]{10}" 
-                               class="input-field" placeholder=" " required
-                               title="Please enter a valid 10-digit account number">
+                        <select name="transfer_type" id="transfer_type" class="input-field" required>
+                            <option value="external">External Account</option>
+                            <?php if ($currentAccount && $savingsAccount): ?>
+                            <option value="internal">My Savings Account</option>
+                            <?php endif; ?>
+                        </select>
+                        <label class="input-label">Transfer Type</label>
+                    </div>
+
+                    <div class="input-group" id="external_account_group">
+                        <input type="text" name="beneficiary_account" id="beneficiary_account"
+                               class="input-field" placeholder=" ">
                         <label class="input-label">Beneficiary Account Number</label>
                     </div>
 
@@ -153,12 +195,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
                         <input type="number" name="amount" step="0.01" min="0.01" 
                                class="input-field" placeholder=" " required>
                         <label class="input-label">Amount ($)</label>
-                    </div>
-
-                    <div class="input-group">
-                        <textarea name="description" class="input-field" 
-                                placeholder=" " rows="3"></textarea>
-                        <label class="input-label">Description (Optional)</label>
                     </div>
 
                     <button type="submit" name="transfer" 
@@ -169,5 +205,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer'])) {
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const transferType = document.getElementById('transfer_type');
+            const externalAccountGroup = document.getElementById('external_account_group');
+            const beneficiaryAccount = document.getElementById('beneficiary_account');
+            
+            <?php if ($savingsAccount): ?>
+            const savingsAccountNumber = '<?= htmlspecialchars($savingsAccount['account_number']) ?>';
+            <?php endif; ?>
+
+            transferType.addEventListener('change', function() {
+                if (this.value === 'internal') {
+                    externalAccountGroup.style.display = 'none';
+                    beneficiaryAccount.value = savingsAccountNumber;
+                    beneficiaryAccount.required = false;
+                } else {
+                    externalAccountGroup.style.display = 'block';
+                    beneficiaryAccount.value = '';
+                    beneficiaryAccount.required = true;
+                }
+            });
+        });
+    </script>
 </body>
-</html> 
+</html>

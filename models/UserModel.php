@@ -1,7 +1,7 @@
 <?php
 
-// echo __DIR__
 require_once(__DIR__ . '/../config/config.php'); 
+require_once(__DIR__ . '/Account.php');
 
 class User
 {
@@ -9,7 +9,6 @@ class User
     private $email;
     private $password;
     private $conn;
-
 
     public function __construct($pdo)
     {
@@ -19,37 +18,68 @@ class User
             throw new Exception("Invalid database connection");
     }
 
-    // Getters
-    public function getUsername()
-    {
-        return $this->username;
-    }
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    // Setters
-
-    public function setUsername($username)
-    {
-        return $this->username = $username;
-    }
-    public function setEmail($email)
-    {
-        return $this->email = $email;
-    }
-    public function setPassword($password)
-    {
-        return $this->password = password_hash($password, PASSWORD_DEFAULT);
+    // Getters and setters...
+    public function getUsername() { return $this->username; }
+    public function getEmail() { return $this->email; }
+    public function setUsername($username) { $this->username = $username; }
+    public function setEmail($email) { $this->email = $email; }
+    public function setPassword($password) { 
+        $this->password = password_hash($password, PASSWORD_DEFAULT); 
     }
 
-    public function getAllUsers()
-    {
+    public function create() {
+        try {
+            $this->conn->beginTransaction();
+
+            // Create user
+            $stmt = $this->conn->prepare("
+                INSERT INTO users (username, email, password, role) 
+                VALUES (?, ?, ?, 'user')
+            ");
+            
+            $stmt->execute([
+                $this->username,
+                $this->email,
+                $this->password
+            ]);
+            
+            $userId = $this->conn->lastInsertId();
+
+            // Create accounts for the user
+            $account = new Account($this->conn);
+            $account->createUserAccounts($userId);
+
+            $this->conn->commit();
+            return $userId;
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
+        }
+    }
+
+    public function authenticate($email, $password) {
+        $stmt = $this->conn->prepare("
+            SELECT id, username, email, password, role 
+            FROM users 
+            WHERE email = ?
+        ");
+        
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user && password_verify($password, $user['password'])) {
+            return $user;
+        }
+        
+        return false;
+    }
+
+    public function getAllUsers() {
         $query = "SELECT u.*, 
                   a.id as account_id, 
                   a.balance, 
                   a.account_type,
+                  a.account_number,
                   CASE 
                     WHEN a.balance > 0 THEN 'Active'
                     ELSE 'Inactive'
@@ -61,8 +91,7 @@ class User
         return $this->conn->query($query);
     }
 
-    public function updateUser($userId)
-    {
+    public function updateUser($userId) {
         try {
             $this->conn->beginTransaction();
 
@@ -77,8 +106,7 @@ class User
         }
     }
 
-    public function deleteUser($userId)
-    {
+    public function deleteUser($userId) {
         try {
             $this->conn->beginTransaction();
 
@@ -92,93 +120,6 @@ class User
 
             $this->conn->commit();
             return $result;
-        } catch (Exception $e) {
-            $this->conn->rollBack();
-            throw $e;
-        }
-    }
-
-    public function authenticate($email, $password)
-    {
-        $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($password, $user['password'])) {
-            return $user;
-        }
-        return false;
-    }
-
-    private function generateAccountNumber() {
-        do {
-            $accountNumber = mt_rand(1000000000, 9999999999);
-            
-            // Check if account number already exists
-            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM accounts WHERE account_number = ?");
-            $stmt->execute([$accountNumber]);
-            $exists = $stmt->fetchColumn();
-        } while ($exists > 0);
-        
-        return $accountNumber;
-    }
-
-    public function createUser($username, $email, $password, $role = 'user')
-    {
-        try {
-            $this->conn->beginTransaction();
-
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $this->conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$username, $email, $hashedPassword, $role]);
-            
-            $userId = $this->conn->lastInsertId();
-            $accountNumber = $this->generateAccountNumber();
-
-            // Create a default account for the user with the generated account number
-            $stmt = $this->conn->prepare("INSERT INTO accounts (user_id, account_type, balance, account_number) VALUES (?, 'current', 0.00, ?)");
-            $stmt->execute([$userId, $accountNumber]);
-
-            $this->conn->commit();
-            return $userId;
-        } catch (Exception $e) {
-            $this->conn->rollBack();
-            throw $e;
-        }
-    }
-
-    public function updateProfile($userId, $data)
-    {
-        try {
-            $this->conn->beginTransaction();
-
-            $updates = [];
-            $params = [];
-
-            if (!empty($data['username'])) {
-                $updates[] = "username = ?";
-                $params[] = $data['username'];
-            }
-
-            if (!empty($data['email'])) {
-                $updates[] = "email = ?";
-                $params[] = $data['email'];
-            }
-
-            if (!empty($data['new_password'])) {
-                $updates[] = "password = ?";
-                $params[] = password_hash($data['new_password'], PASSWORD_DEFAULT);
-            }
-
-            if (!empty($updates)) {
-                $params[] = $userId;
-                $sql = "UPDATE users SET " . implode(", ", $updates) . " WHERE id = ?";
-                $stmt = $this->conn->prepare($sql);
-                $stmt->execute($params);
-            }
-
-            $this->conn->commit();
-            return true;
         } catch (Exception $e) {
             $this->conn->rollBack();
             throw $e;

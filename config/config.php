@@ -14,7 +14,7 @@ class Database
         PDO::ATTR_EMULATE_PREPARES => false
     ];
 
-    public function __construct($dbname, $username = 'root', $password = '', $host = null)
+    public function __construct($dbname, $username = 'root', $password = '20JvAt02', $host = null)
     {
         $this->dbname = $dbname;
         $this->username = $username;
